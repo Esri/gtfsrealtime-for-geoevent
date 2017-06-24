@@ -1,0 +1,53 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.esri.geoevent.parent</groupId>
+    <artifactId>gtfsrealtime</artifactId>
+    <version>10.5.0</version>
+  </parent>
+  <packaging>bundle</packaging>
+  <groupId>com.esri.geoevent.adapter</groupId>
+  <artifactId>gtfsrealtime-adapter</artifactId>
+  <name>Esri :: GeoEvent :: Adapter :: GTFSRealtime</name>
+  <dependencies>
+	    <dependency>
+	      <groupId>com.google.protobuf</groupId>
+	      <artifactId>protobuf-java</artifactId>
+	      <version>2.6.1</version>
+	    </dependency>		
+		<!-- https://mvnrepository.com/artifact/com.google.transit/gtfs-realtime-bindings -->
+		<!-- 
+		<dependency>
+		    <groupId>com.google.transit</groupId>
+		    <artifactId>gtfs-realtime-bindings</artifactId>
+		    <version>0.0.4</version>
+		</dependency>
+		 -->
+  </dependencies>  
+  <build>
+	<resources>
+		<resource>
+			<directory>src/main/resources</directory>
+			<filtering>true</filtering>
+		</resource>
+	</resources>  
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Bundle-ContactAddress>${contact.address}</Bundle-ContactAddress>
+            <Bundle-Version>${project.version}</Bundle-Version>
+            <Export-Package>com.google.transit.realtime</Export-Package>
+            <Import-Package>!com.google.*,*</Import-Package>
+			<Embed-Dependency>protobuf-java</Embed-Dependency>            
+            <Private-Package>com.esri.geoevent.adapter.gtfsrealtime</Private-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

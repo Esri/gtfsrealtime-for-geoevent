@@ -1,0 +1,116 @@
+<adapter 
+	name="GTFSRealtime" 
+	label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.ADAPTER_IN_LABEL}" 
+	domain="com.esri.geoevent.adapter.inbound" type="inbound">
+	<description>${com.esri.geoevent.adapter.gtfsrealtime-adapter.ADAPTER_IN_DESC}</description>
+	<propertyDefinitions>
+		<propertyDefinition propertyName="url"
+			label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.ADAPTER_IN_URL_LABEL}"
+			description="${com.esri.geoevent.adapter.gtfsrealtime-adapter.ADAPTER_IN_URL_DESC}"
+			propertyType="String" defaultValue="http://65.213.12.244/realtimefeed/vehicle/vehiclepositions.pb" mandatory="true"
+			readOnly="false"/>
+	</propertyDefinitions>	
+	<geoEventDefinitions>
+		<geoEventDefinition name="GtfsRtVehicle">
+			<fieldDefinitions>
+				<fieldDefinition name="entityid" type="String"/>
+				<fieldDefinition name="vehicleid" type="String">
+					<fieldDefinitionTag>
+						<name>TRACK_ID</name>
+					</fieldDefinitionTag>
+				</fieldDefinition>
+				<fieldDefinition name="label" type="String"/>
+				<fieldDefinition name="longitude" type="Double"/>
+				<fieldDefinition name="latitude" type="Double"/>
+				<fieldDefinition name="bearing" type="Double"/>
+				<fieldDefinition name="speed" type="Double"/>
+				<fieldDefinition name="odometer" type="Double"/>
+				<fieldDefinition name="tripid" type="String"/>
+				<fieldDefinition name="startdate" type="String"/>
+				<fieldDefinition name="starttime" type="String"/>
+				<fieldDefinition name="routeid" type="String"/>
+				<fieldDefinition name="directionid" type="String"/>
+				<fieldDefinition name="occupancystatus" type="Integer"/>
+				<fieldDefinition name="stopid" type="String"/>
+				<fieldDefinition name="currentstopseq" type="Integer"/>
+				<fieldDefinition name="congestionlev" type="Integer"/>
+				<fieldDefinition name="schedulerel" type="Integer"/>
+				<fieldDefinition name="headertimestamp" type="Date"/>
+				<fieldDefinition name="timestamp" type="Date">
+					<fieldDefinitionTag>
+						<name>TIME_START</name>
+					</fieldDefinitionTag>
+				</fieldDefinition>
+				<fieldDefinition name="position" type="Geometry">
+					<fieldDefinitionTag>
+						<name>GEOMETRY</name>
+					</fieldDefinitionTag>
+				</fieldDefinition>
+			</fieldDefinitions>
+		</geoEventDefinition>
+		<geoEventDefinition name="GtfsRtTripUpdate">
+			<fieldDefinitions>
+				<fieldDefinition name="entityid" type="String"/>
+				<fieldDefinition name="delay" type="Integer"/>
+				<fieldDefinition name="tripid" type="String"/>
+				<fieldDefinition name="directionid" type="String"/>
+				<fieldDefinition name="routeid" type="String"/>
+				<fieldDefinition name="startdate" type="String"/>
+				<fieldDefinition name="starttime" type="String"/>
+				<fieldDefinition name="schedulerel" type="Integer"/>
+				
+				<fieldDefinition name="vehicleid" type="String">
+					<fieldDefinitionTag>
+						<name>TRACK_ID</name>
+					</fieldDefinitionTag>
+				</fieldDefinition>
+				<fieldDefinition name="label" type="String"/>
+				<fieldDefinition name="licenseplate" type="String"/>
+				<fieldDefinition name="headertimestamp" type="Date"/>
+				<fieldDefinition name="timestamp" type="Date">
+					<fieldDefinitionTag>
+						<name>TIME_START</name>
+					</fieldDefinitionTag>
+				</fieldDefinition>
+				<fieldDefinition name="stoptimeupdatecount" type="Integer"/>
+				<fieldDefinition name="stoptimeupdatelist" type="Group" cardinality="Many">
+                    <fieldDefinitions>
+                        <fieldDefinition name="arrdelay" type="Integer" cardinality="One"/>
+                        <fieldDefinition name="arrtime" type="Long" cardinality="One"/>
+                        <fieldDefinition name="arruncertainty" type="Integer" cardinality="One"/>
+                        <fieldDefinition name="dptdelay" type="Integer" cardinality="One"/>
+                        <fieldDefinition name="dpttime" type="Long" cardinality="One"/>
+                        <fieldDefinition name="dptuncertainty" type="Integer" cardinality="One"/>
+                        <fieldDefinition name="stopid" type="String" cardinality="One"/>
+                        <fieldDefinition name="currentstopseq" type="Integer" cardinality="One"/>
+                        <fieldDefinition name="schedulerel" type="Integer" cardinality="One"/>
+                    </fieldDefinitions>
+                </fieldDefinition>				
+			</fieldDefinitions>
+		</geoEventDefinition>		
+		<geoEventDefinition name="GtfsRtAlert">
+			<fieldDefinitions>
+				<fieldDefinition name="entityid" type="String">
+					<fieldDefinitionTag>
+						<name>TRACK_ID</name>
+					</fieldDefinitionTag>
+				</fieldDefinition>
+				<fieldDefinition name="act_period_count" type="Integer"/>
+				<fieldDefinition name="act_period_list" type="String"/>
+				<fieldDefinition name="inf_ent_count" type="Integer"/>
+				<fieldDefinition name="inf_ent_list" type="String"/>
+				<fieldDefinition name="cause" type="String"/>
+				<fieldDefinition name="effect" type="String"/>
+				<fieldDefinition name="url" type="String"/>
+				<fieldDefinition name="headertext" type="String"/>
+				<fieldDefinition name="desctext" type="String"/>
+				<fieldDefinition name="timestamp" type="Date">
+					<fieldDefinitionTag>
+						<name>TIME_START</name>
+					</fieldDefinitionTag>
+				</fieldDefinition>
+			</fieldDefinitions>
+		</geoEventDefinition>
+
+	</geoEventDefinitions>
+</adapter>

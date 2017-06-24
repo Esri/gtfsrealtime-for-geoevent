@@ -1,0 +1,25 @@
+<connectorDefinition 
+	label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.CONNECTOR_LABEL}" 
+	name="esri-in-gtfsrealtime" type="inbound">
+	<description>${com.esri.geoevent.adapter.gtfsrealtime-adapter.CONNECTOR_DESC}</description>
+	<defaultName>gtfsrealtime-in</defaultName>
+	<adapter uri="com.esri.geoevent.adapter.inbound/GTFSRealtime/10.5.0" />
+	<transport uri="com.esri.ges.transport.inbound/TimeTriggerTransport/10.5.0" />
+	<properties>
+		<shown>
+			<property name="url" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.ADAPTER_IN_URL_LABEL}" default="http://65.213.12.244/realtimefeed/vehicle/vehiclepositions.pb" source="adapter" />
+			<property name="useScheduleTime" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.TRANSPORT_IN_USESCHEDULETIME_LABEL}" default="false" source="transport" />
+			<property name="triggerInterval" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.TRANSPORT_IN_TRIGGERINTERVAL_LABEL}" default="30000" source="transport" />
+			<property name="startTime" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.TRANSPORT_IN_STARTTIME_LABEL}" default="00:00:00" source="transport" />
+			<property name="repeatInterval" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.TRANSPORT_IN_REPEATINTERVAL_LABEL}" default="1000" source="transport" />
+			<property name="useEndTime" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.TRANSPORT_IN_USEENDTIME_LABEL}" default="false" source="transport" />			
+			<property name="endTime" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.TRANSPORT_IN_ENDTIME_LABEL}" default="23:59:59" source="transport" />			
+			<property name="repeatCount" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.TRANSPORT_IN_REPEATCOUNT_LABEL}" default="1" source="transport" />
+			<property name="timeUnit" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.TRANSPORT_IN_TIMEUNIT_LABEL}" default="milliseconds" source="transport" />			
+		</shown>
+		<advanced>
+		</advanced>
+		<hidden>
+		</hidden>
+	</properties>
+</connectorDefinition>
