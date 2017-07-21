@@ -25,6 +25,7 @@
 package com.esri.geoevent.adapter.gtfsrealtime;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -64,7 +65,9 @@ import com.google.transit.realtime.GtfsRealtime.VehiclePosition.OccupancyStatus;
 public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
 {
   private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(GtfsRealtimeInboundAdapter.class);
-
+  private static final String       HEADER_PROPERTY                       = "headers";
+  private String[]                  headers;
+  private String                    headerParams;  
   private String                    urlStr;
   private ExecutorService           executor;
 
@@ -93,7 +96,30 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
       try
       {
         URL url = new URL(urlStr);
-        FeedMessage feed = FeedMessage.parseFrom(url.openStream());
+        HttpURLConnection myURLConnection = (HttpURLConnection)url.openConnection();
+        if (headers != null && headers.length > 0) 
+        {
+          for (int i = 0; i < headers.length; i++)
+          {
+            String[] nameValue = headers[i].split(":");
+            myURLConnection.setRequestProperty (nameValue[0], nameValue[1]);
+          }
+        }
+        
+        //myURLConnection.setRequestProperty ("Authorization", basicAuth);
+        //String userCredentials = "username:password";
+        //String basicAuth = "Basic " + new String(new Base64().encode(userCredentials.getBytes()));
+        //myURLConnection.setRequestProperty ("Authorization", basicAuth);
+        //myURLConnection.setRequestMethod("POST");
+        //myURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        //myURLConnection.setRequestProperty("Content-Length", "" + postData.getBytes().length);
+        //myURLConnection.setRequestProperty("Content-Language", "en-US");
+        //myURLConnection.setUseCaches(false);
+        //myURLConnection.setDoInput(true);
+        //myURLConnection.setDoOutput(true);  
+        
+        FeedMessage feed = FeedMessage.parseFrom(myURLConnection.getInputStream());
+        //FeedMessage feed = FeedMessage.parseFrom(url.openStream());
         long headerTimestamp = feed.getHeader().getTimestamp();
         for (FeedEntity entity : feed.getEntityList())
         {
@@ -126,6 +152,15 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
     super.afterPropertiesSet();
     urlStr = getProperty("url").getValueAsString();
 
+    if (hasProperty(HEADER_PROPERTY))
+    {
+      headerParams = getProperty(HEADER_PROPERTY).getValueAsString();
+      if (headerParams.isEmpty() == false)
+      {
+        headers = headerParams.split("[|]");        
+      }
+    }
+    
     executor = Executors.newFixedThreadPool(20);
   }
 

@@ -9,6 +9,11 @@
 			description="${com.esri.geoevent.adapter.gtfsrealtime-adapter.ADAPTER_IN_URL_DESC}"
 			propertyType="String" defaultValue="http://65.213.12.244/realtimefeed/vehicle/vehiclepositions.pb" mandatory="true"
 			readOnly="false"/>
+		<propertyDefinition propertyName="headers"
+			label="Headers"
+			description="HTTP headers name:value with | separator for example Accept:application/x-google-protobuf|Authorization:apikey 0123456789abcdef"
+			propertyType="String" defaultValue="" mandatory="false"
+			readOnly="false"/>
 	</propertyDefinitions>	
 	<geoEventDefinitions>
 		<geoEventDefinition name="GtfsRtVehicle">
