@@ -14,6 +14,11 @@
 			description="${com.esri.geoevent.adapter.gtfsrealtime-adapter.ADAPTER_IN_HTTP_HEADERS_DESC}"
 			propertyType="String" defaultValue="" mandatory="false"
 			readOnly="false"/>
+		<propertyDefinition propertyName="isTextFormat"
+			label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.ADAPTER_IN_ISTEXTFORMAT_LABEL}"
+			description="${com.esri.geoevent.adapter.gtfsrealtime-adapter.ADAPTER_IN_ISTEXTFORMAT_DESC}"
+			propertyType="Boolean" defaultValue="" mandatory="false"
+			readOnly="false"/>
 	</propertyDefinitions>	
 	<geoEventDefinitions>
 		<geoEventDefinition name="GtfsRtVehicle">
@@ -78,7 +83,7 @@
 					</fieldDefinitionTag>
 				</fieldDefinition>
 				<fieldDefinition name="stoptimeupdatecount" type="Integer"/>
-				<fieldDefinition name="stoptimeupdatelist" type="Group" cardinality="Many">
+				<fieldDefinition name="stoptimeupdates" type="Group" cardinality="Many">
                     <fieldDefinitions>
                         <fieldDefinition name="arrdelay" type="Integer" cardinality="One"/>
                         <fieldDefinition name="arrtime" type="Long" cardinality="One"/>

@@ -25,6 +25,8 @@
 package com.esri.geoevent.adapter.gtfsrealtime;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -48,6 +50,7 @@ import com.esri.ges.framework.i18n.BundleLogger;
 import com.esri.ges.framework.i18n.BundleLoggerFactory;
 import com.esri.ges.manager.geoeventdefinition.GeoEventDefinitionManagerException;
 import com.esri.ges.messaging.MessagingException;
+import com.google.protobuf.TextFormat;
 import com.google.transit.realtime.GtfsRealtime.Alert;
 import com.google.transit.realtime.GtfsRealtime.EntitySelector;
 import com.google.transit.realtime.GtfsRealtime.FeedEntity;
@@ -66,6 +69,7 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
 {
   private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(GtfsRealtimeInboundAdapter.class);
   private static final String       HEADER_PROPERTY                       = "headers";
+  private Boolean                   isTextFormat;
   private String[]                  headers;
   private String                    headerParams;  
   private String                    urlStr;
@@ -118,8 +122,19 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
         //myURLConnection.setDoInput(true);
         //myURLConnection.setDoOutput(true);  
         
-        FeedMessage feed = FeedMessage.parseFrom(myURLConnection.getInputStream());
-        //FeedMessage feed = FeedMessage.parseFrom(url.openStream());
+        FeedMessage feed;
+        if (isTextFormat == true)
+        {
+          InputStream inputStream = myURLConnection.getInputStream();
+          InputStreamReader reader = new InputStreamReader(inputStream);
+          FeedMessage.Builder myProtoBuilder = FeedMessage.newBuilder();
+          TextFormat.merge(reader,  myProtoBuilder);
+          feed = myProtoBuilder.build();
+        }
+        else {
+          feed = FeedMessage.parseFrom(myURLConnection.getInputStream());          
+          //feed = FeedMessage.parseFrom(url.openStream());
+        }
         long headerTimestamp = feed.getHeader().getTimestamp();
         for (FeedEntity entity : feed.getEntityList())
         {
@@ -152,6 +167,8 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
     super.afterPropertiesSet();
     urlStr = getProperty("url").getValueAsString();
 
+    isTextFormat = Boolean.parseBoolean(getProperty("isTextFormat").getValueAsString());
+    
     if (hasProperty(HEADER_PROPERTY))
     {
       headerParams = getProperty(HEADER_PROPERTY).getValueAsString();
@@ -387,7 +404,7 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
 
       if (tripUpdate.hasTimestamp())
       {
-        geoEvent.setField("timestamp", tripUpdate.getTimestamp());
+        geoEvent.setField("timestamp", new Date(tripUpdate.getTimestamp()));
       }
 
       int stopTimeUpdateCount = tripUpdate.getStopTimeUpdateCount();

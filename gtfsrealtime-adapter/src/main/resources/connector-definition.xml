@@ -9,6 +9,7 @@
 		<shown>
 			<property name="url" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.ADAPTER_IN_URL_LABEL}" default="http://65.213.12.244/realtimefeed/vehicle/vehiclepositions.pb" source="adapter" />
 			<property name="headers" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.ADAPTER_IN_HTTP_HEADERS_LABEL}" default="" source="adapter" />
+			<property name="isTextFormat" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.ADAPTER_IN_ISTEXTFORMAT_LABEL}" default="" source="adapter" />
 			<property name="useScheduleTime" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.TRANSPORT_IN_USESCHEDULETIME_LABEL}" default="false" source="transport" />
 			<property name="triggerInterval" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.TRANSPORT_IN_TRIGGERINTERVAL_LABEL}" default="30000" source="transport" />
 			<property name="startTime" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.TRANSPORT_IN_STARTTIME_LABEL}" default="00:00:00" source="transport" />
