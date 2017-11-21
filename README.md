@@ -1,6 +1,6 @@
 # gtfsrealtime-for-geoevent
 
-ArcGIS GeoEvent Extension for Server GTFS-Realtime Input Connector for receiving raw data in the GTFS-Realtime format.
+The GTFS Realtime Connector for ArcGIS GeoEvent Server allows you to configure GeoEvent Server to receive raw data in the GTFS Realtime format.
 
 ![App](gtfsrealtime-for-geoevent.png?raw=true)
 
@@ -11,24 +11,24 @@ ArcGIS GeoEvent Extension for Server GTFS-Realtime Input Connector for receiving
 
 Building the source code:
 
-1. Make sure Maven and ArcGIS GeoEvent Extension SDK are installed on your machine.
+1. Make sure Maven and ArcGIS GeoEvent Server SDK are installed on your machine.
 2. Run 'mvn install -Dcontact.address=[YourContactEmailAddress]'
 
 Installing the built jar files:
 
-1. Copy the *.jar files under the 'target' sub-folder(s) into the [ArcGIS-GeoEvent-Extension-Install-Directory]/deploy folder.
+1. Copy the *.jar files under the 'target' sub-folder(s) into the [ArcGIS-GeoEvent-Server-Install-Directory]/deploy folder.
 
 ## Requirements
 
-* ArcGIS GeoEvent Extension for Server.
-* ArcGIS GeoEvent Extension SDK.
+* ArcGIS GeoEvent Server.
+* ArcGIS GeoEvent Server SDK.
 * Java JDK 1.8 or greater.
 * Maven.
 
 ## Resources
 
-* [Download the connector's tutorial](http://www.arcgis.com/home/item.html?id=6704a8df6d1e48448b8471768428215c) from the ArcGIS GeoEvent Extension Gallery
-* [ArcGIS GeoEvent Extension for Server Resources](http://links.esri.com/geoevent)
+* [Download the connector's tutorial](http://www.arcgis.com/home/item.html?id=6704a8df6d1e48448b8471768428215c) from the ArcGIS GeoEvent Server Gallery
+* [ArcGIS GeoEvent Server for Server Resources](http://links.esri.com/geoevent)
 * [ArcGIS Blog](http://blogs.esri.com/esri/arcgis/)
 * [twitter@esri](http://twitter.com/esri)
 
@@ -57,6 +57,6 @@ limitations under the License.
 
 A copy of the license is available in the repository's [license.txt](license.txt?raw=true) file.
 
-[](ArcGIS, GeoEvent, Processor, Connector, GTFSRealtime)
-[](Esri Tags: ArcGIS GeoEvent Extension for Server)
+[](ArcGIS, GeoEvent, Server, Adapter, Processor, Connector, GTFSRealtime)
+[](Esri Tags: ArcGIS GeoEvent Server)
 [](Esri Language: Java)
