@@ -3,8 +3,8 @@
 	name="esri-in-gtfsrealtime" type="inbound">
 	<description>${com.esri.geoevent.adapter.gtfsrealtime-adapter.CONNECTOR_DESC}</description>
 	<defaultName>gtfsrealtime-in</defaultName>
-	<adapter uri="com.esri.geoevent.adapter.inbound/GTFSRealtime/10.5.0" />
-	<transport uri="com.esri.ges.transport.inbound/TimeTriggerTransport/10.5.0" />
+	<adapter uri="com.esri.geoevent.adapter.inbound/GTFSRealtime/10.6.0" />
+	<transport uri="com.esri.ges.transport.inbound/TimeTriggerTransport/10.6.0" />
 	<properties>
 		<shown>
 			<property name="url" label="${com.esri.geoevent.adapter.gtfsrealtime-adapter.ADAPTER_IN_URL_LABEL}" default="http://65.213.12.244/realtimefeed/vehicle/vehiclepositions.pb" source="adapter" />
