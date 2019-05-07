@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.esri.geoevent.parent</groupId>
     <artifactId>gtfsrealtime</artifactId>
-    <version>10.6.0</version>
+    <version>10.4.0</version>
   </parent>
   <packaging>bundle</packaging>
   <groupId>com.esri.geoevent.adapter</groupId>

@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.esri.core.geometry.MapGeometry;
 import com.esri.core.geometry.Point;
@@ -82,11 +83,9 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
 
   /*
    * public static void main(String[] args) throws Exception { URL url = new
-   * URL("URL OF YOUR GTFS-REALTIME SOURCE GOES HERE"); FeedMessage feed =
-   * FeedMessage.parseFrom(url.openStream()); InputStream stream =
-   * url.openStream(); for (FeedEntity entity : feed.getEntityList()) { if
-   * (entity.hasTripUpdate()) { System.out.println(entity.getTripUpdate()); } }
-   * }
+   * URL("URL OF YOUR GTFS-REALTIME SOURCE GOES HERE"); FeedMessage feed = FeedMessage.parseFrom(url.openStream());
+   * InputStream stream = url.openStream(); for (FeedEntity entity : feed.getEntityList()) { if (entity.hasTripUpdate())
+   * { System.out.println(entity.getTripUpdate()); } } }
    */
   private class GtfsToGeoEvent implements Runnable
   {
@@ -100,27 +99,27 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
       try
       {
         URL url = new URL(urlStr);
-        HttpURLConnection myURLConnection = (HttpURLConnection)url.openConnection();
+        HttpURLConnection myURLConnection = (HttpURLConnection) url.openConnection();
         if (headers != null && headers.length > 0) 
         {
           for (int i = 0; i < headers.length; i++)
           {
             String[] nameValue = headers[i].split(":");
-            myURLConnection.setRequestProperty (nameValue[0], nameValue[1]);
+            myURLConnection.setRequestProperty(nameValue[0], nameValue[1]);
           }
         }
         
-        //myURLConnection.setRequestProperty ("Authorization", basicAuth);
-        //String userCredentials = "username:password";
-        //String basicAuth = "Basic " + new String(new Base64().encode(userCredentials.getBytes()));
-        //myURLConnection.setRequestProperty ("Authorization", basicAuth);
-        //myURLConnection.setRequestMethod("POST");
-        //myURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        //myURLConnection.setRequestProperty("Content-Length", "" + postData.getBytes().length);
-        //myURLConnection.setRequestProperty("Content-Language", "en-US");
-        //myURLConnection.setUseCaches(false);
-        //myURLConnection.setDoInput(true);
-        //myURLConnection.setDoOutput(true);  
+        // myURLConnection.setRequestProperty ("Authorization", basicAuth);
+        // String userCredentials = "username:password";
+        // String basicAuth = "Basic " + new String(new Base64().encode(userCredentials.getBytes()));
+        // myURLConnection.setRequestProperty ("Authorization", basicAuth);
+        // myURLConnection.setRequestMethod("POST");
+        // myURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        // myURLConnection.setRequestProperty("Content-Length", "" + postData.getBytes().length);
+        // myURLConnection.setRequestProperty("Content-Language", "en-US");
+        // myURLConnection.setUseCaches(false);
+        // myURLConnection.setDoInput(true);
+        // myURLConnection.setDoOutput(true);
         
         FeedMessage feed;
         if (isTextFormat == true)
@@ -131,12 +130,19 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
           TextFormat.merge(reader,  myProtoBuilder);
           feed = myProtoBuilder.build();
         }
-        else {
+        else
+        {
           feed = FeedMessage.parseFrom(myURLConnection.getInputStream());          
-          //feed = FeedMessage.parseFrom(url.openStream());
+          // feed = FeedMessage.parseFrom(url.openStream());
         }
-        long headerTimestamp = feed.getHeader().getTimestamp();
-        for (FeedEntity entity : feed.getEntityList())
+        if (feed != null)
+        {
+          final long headerTimestamp = feed.getHeader().getTimestamp();
+          feed.getEntityList().forEach(entity ->
+            {
+              // for (FeedEntity entity : feed.getEntityList())
+              {
+                try
         {
           if (entity.hasVehicle())
           {
@@ -152,11 +158,20 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
           {
             getTripUpdatesAndSendGeoEvents(entity, headerTimestamp);
           }
+                }
+                catch (Exception e)
+                {
+                  LOGGER.warn(e.getMessage());
+                  LOGGER.debug(e.getMessage(), e);
+                }
         } // for
+            });
+        }
       }
       catch (IOException e)
       {
         LOGGER.error(e.getMessage());
+        LOGGER.debug(e.getMessage(), e);
       }
     }// run
   }// class
@@ -178,6 +193,20 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
       }
     }
     
+    ExecutorService locaExecutor = executor;
+    executor = null;
+    if (locaExecutor != null)
+    {
+      try
+      {
+        locaExecutor.shutdownNow();
+        locaExecutor.awaitTermination(3, TimeUnit.SECONDS);
+      }
+      catch (Exception e)
+      {
+        // pass
+      }
+    }
     executor = Executors.newFixedThreadPool(20);
   }
 
@@ -195,48 +224,64 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
   @Override
   public void receive(ByteBuffer buffer, String channelId)
   {
-    //Just set the buffer pointer to its limit otherwise this will be called in a tight loop
+    // Just set the buffer pointer to its limit otherwise this will be called in a tight loop
     if (buffer.hasRemaining())
     {
       buffer.position(buffer.limit());
     }
+    if (executor == null)
+    {
+      executor = Executors.newFixedThreadPool(20);
+    }
     executor.execute(new GtfsToGeoEvent());
+  }
+
+  private GeoEvent createGeoEvent(String gedName)
+    {
+    GeoEvent geoEvent = null;
+      AdapterDefinition def = (AdapterDefinition) definition;
+      GeoEventDefinition geoDef = def.getGeoEventDefinition(gedName);
+
+      try
+      {
+      // Try looking up using the GUID, sometimes this fails on startup
+      if (geoEventCreator.getGeoEventDefinitionManager().getGeoEventDefinition(geoDef.getGuid()) == null)
+      {
+        // Didn't find the guid, lookup using name and owner
+        if (geoEventCreator.getGeoEventDefinitionManager().searchGeoEventDefinition(geoDef.getName(), geoDef.getOwner()) == null)
+        {
+          // Still didn't find it, may have been deleted, so add it based on what was in the definition
+          geoEventCreator.getGeoEventDefinitionManager().addGeoEventDefinition(geoDef);
+        }
+        // Get the one using the name/owner (this one has to have a valid guid)
+        geoDef = geoEventCreator.getGeoEventDefinitionManager().searchGeoEventDefinition(geoDef.getName(), geoDef.getOwner());
+      }
+      geoEvent = geoEventCreator.create(geoDef.getGuid());
+      }
+      catch (MessagingException ex)
+      {
+        LOGGER.error("Could not create GtfsRtVehicle GeoEvent", ex);
+      }
+      catch (GeoEventDefinitionManagerException ex)
+      {
+        LOGGER.error("Could not create GtfsRtVehicle GeoEvent.", ex);
+    }
+    return geoEvent;
   }
 
   private void getVehiclesAndSendGeoEvents(FeedEntity entity, long headerTimestamp)
   {
     if (entity.hasVehicle() == false)
     {
-      return;
-    }
+        return;
+      }
     String gedName = "GtfsRtVehicle";
     try
     {
-      GeoEvent geoEvent;
-      AdapterDefinition def = (AdapterDefinition) definition;
-      GeoEventDefinition geoDef = def.getGeoEventDefinition(gedName);
+      GeoEvent geoEvent = createGeoEvent(gedName);
 
-      try
+      if (geoEvent != null)
       {
-        if (geoEventCreator.getGeoEventDefinitionManager().searchGeoEventDefinition(geoDef.getName(), geoDef.getOwner()) == null)
-        {
-          geoEventCreator.getGeoEventDefinitionManager().addGeoEventDefinition(geoDef);
-        }
-        geoEvent = geoEventCreator.create(geoDef.getName(), geoDef.getOwner());
-      }
-      catch (MessagingException ex)
-      {
-        LOGGER.error("Could not create GtfsRtVehicle GeoEvent", ex);
-        return;
-      }
-      catch (GeoEventDefinitionManagerException ex)
-      {
-        LOGGER.error("Could not create GtfsRtVehicle GeoEvent.", ex);
-        return;
-      }
-
-      geoEvent = geoEventCreator.create(((AdapterDefinition) definition).getGeoEventDefinition(gedName).getGuid());
-
       geoEvent.setField("entityid", entity.getId());
 
       Date date = new Date(headerTimestamp);
@@ -256,11 +301,11 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
       {
         Position position = vehiclePosition.getPosition();
         
-        double longitude = position.hasLongitude()? position.getLongitude() : 0.0;
+          double longitude = position.hasLongitude() ? position.getLongitude() : 0.0;
         if (position.hasLongitude())
           geoEvent.setField("longitude", longitude);
         
-        double latitude = position.hasLatitude()? position.getLatitude() : 0.0;
+          double latitude = position.hasLatitude() ? position.getLatitude() : 0.0;
         if (position.hasLatitude())
           geoEvent.setField("latitude", latitude);
 
@@ -317,9 +362,6 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
 
       geoEventListener.receive(geoEvent);
     }
-    catch (MessagingException e)
-    {
-      LOGGER.error(e.getMessage());
     }
     catch (FieldException e)
     {
@@ -337,31 +379,10 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
     String gedName = "GtfsRtTripUpdate";
     try
     {
-      GeoEvent geoEvent;
-      AdapterDefinition def = (AdapterDefinition) definition;
-      GeoEventDefinition geoDef = def.getGeoEventDefinition(gedName);
+      GeoEvent geoEvent = createGeoEvent(gedName);
 
-      try
+      if (geoEvent != null)
       {
-        if (geoEventCreator.getGeoEventDefinitionManager().searchGeoEventDefinition(geoDef.getName(), geoDef.getOwner()) == null)
-        {
-          geoEventCreator.getGeoEventDefinitionManager().addGeoEventDefinition(geoDef);
-        }
-        geoEvent = geoEventCreator.create(geoDef.getName(), geoDef.getOwner());
-      }
-      catch (MessagingException ex)
-      {
-        LOGGER.error("Could not create GtfsRtTripUpdate GeoEvent", ex);
-        return;
-      }
-      catch (GeoEventDefinitionManagerException ex)
-      {
-        LOGGER.error("Could not create GtfsRtTripUpdate GeoEvent.", ex);
-        return;
-      }
-
-      geoEvent = geoEventCreator.create(((AdapterDefinition) definition).getGeoEventDefinition(gedName).getGuid());
-
       geoEvent.setField("entityid", entity.getId());
 
       TripUpdate tripUpdate = entity.getTripUpdate();
@@ -457,9 +478,6 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
 
       geoEventListener.receive(geoEvent);
     }
-    catch (MessagingException e)
-    {
-      LOGGER.error(e.getMessage());
     }
     catch (FieldException e)
     {
@@ -477,31 +495,10 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
     String gedName = "GtfsRtAlert";
     try
     {
-      GeoEvent geoEvent;
-      AdapterDefinition def = (AdapterDefinition) definition;
-      GeoEventDefinition geoDef = def.getGeoEventDefinition(gedName);
+      GeoEvent geoEvent = createGeoEvent(gedName);
 
-      try
+      if (geoEvent != null)
       {
-        if (geoEventCreator.getGeoEventDefinitionManager().searchGeoEventDefinition(geoDef.getName(), geoDef.getOwner()) == null)
-        {
-          geoEventCreator.getGeoEventDefinitionManager().addGeoEventDefinition(geoDef);
-        }
-        geoEvent = geoEventCreator.create(geoDef.getName(), geoDef.getOwner());
-      }
-      catch (MessagingException ex)
-      {
-        LOGGER.error("Could not create GtfsRtAlert GeoEvent", ex);
-        return;
-      }
-      catch (GeoEventDefinitionManagerException ex)
-      {
-        LOGGER.error("Could not create GtfsRtAlert GeoEvent.", ex);
-        return;
-      }
-
-      geoEvent = geoEventCreator.create(((AdapterDefinition) definition).getGeoEventDefinition(gedName).getGuid());
-
       geoEvent.setField("entityid", entity.getId());
 
       Alert alert = entity.getAlert();
@@ -583,9 +580,6 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
 
       geoEventListener.receive(geoEvent);
     }
-    catch (MessagingException e)
-    {
-      LOGGER.error(e.getMessage());
     }
     catch (FieldException e)
     {
@@ -599,9 +593,14 @@ public class GtfsRealtimeInboundAdapter extends InboundAdapterBase
   {
     if (executor != null)
     {
-      executor.shutdown();
-      while (!executor.isTerminated())
+      executor.shutdownNow();
+      try
       {
+        executor.awaitTermination(10, TimeUnit.SECONDS);
+      }
+      catch (InterruptedException e)
+      {
+        // pass
       }
       executor = null;
     }
