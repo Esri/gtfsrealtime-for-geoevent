@@ -3,16 +3,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.esri.geoevent.parent</groupId>
 	<artifactId>gtfsrealtime</artifactId>
-	<version>10.6.0</version>
+	<version>10.4.0</version>
 	<packaging>pom</packaging>
 	<name>Esri :: GeoEvent :: GTFS-REALTIME</name>
 	<url>http://www.esri.com</url>
 	<properties>
 		<contact.address>geoevent@esri.com</contact.address>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.bundle.plugin.version>2.3.6</maven.bundle.plugin.version>
+		<maven.bundle.plugin.version>4.0.0</maven.bundle.plugin.version>
 		<junit.version>4.8.1</junit.version>
-		<jackson.version>1.9.5</jackson.version>
 		<transport.domain>com.esri.geoevent.transport.inbound</transport.domain>
 		<adapter.domain>com.esri.geoevent.adapter.inbound</adapter.domain>
 		<component.name>GTFSRealtime</component.name>		
@@ -52,7 +51,6 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>2.5.1</version>
 					<configuration>
 						<source>1.8</source>
 						<target>1.8</target>
