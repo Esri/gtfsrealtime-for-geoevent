@@ -11,7 +11,7 @@
 		<contact.address>geoevent@esri.com</contact.address>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.bundle.plugin.version>4.0.0</maven.bundle.plugin.version>
-		<junit.version>4.8.1</junit.version>
+		<junit.version>4.13.1</junit.version>
 		<transport.domain>com.esri.geoevent.transport.inbound</transport.domain>
 		<adapter.domain>com.esri.geoevent.adapter.inbound</adapter.domain>
 		<component.name>GTFSRealtime</component.name>		
